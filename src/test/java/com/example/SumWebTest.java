@@ -1,61 +1,65 @@
 package com.example;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.io.File;
 import java.time.Duration;
 
 public class SumWebTest {
-    private WebDriver driver;
 
-    @Before
-    public void setUp() {
-        // Options for running in headless mode, which is typical for Jenkins [cite: 83-84]
+    private WebDriver driver;
+    private WebDriverWait wait;
+
+    @BeforeEach
+    public void setup() {
+        // Set the path to the chromedriver executable (if needed, but usually automatically found)
+        // System.setProperty("webdriver.chrome.driver", "path/to/chromedriver.exe");
+
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless=new"); 
-        options.addArguments("--allow-file-access-from-files"); // Access local HTML [cite: 85]
+        options.addArguments("--headless"); // Run Chrome in headless mode (no visible browser window)
+        options.addArguments("--disable-gpu");
+        options.addArguments("--no-sandbox"); // Important for Jenkins/Linux environments
+        options.addArguments("--disable-dev-shm-usage");
+
         driver = new ChromeDriver(options);
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
     @Test
-    public void testSum() throws InterruptedException {
-        // NOTE: The file path must match the location where Jenkins will checkout the project. [cite: 88]
-        String url = "file:///C:/ProgramData/Jenkins/.jenkins/workspace/SeleniumWebSumTest/src/test/resources/sum.html"; 
-        driver.get(url); [cite: 89]
+    public void testSumWebPage() {
+        // Construct the file path to sum.html using the resource directory
+        File htmlFile = new File("src/test/resources/sum.html");
+        String url = "file:///" + htmlFile.getAbsolutePath().replace("\\", "/");
+        driver.get(url);
 
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.id("num1"))); [cite: 90]
+        // Input the numbers
+        driver.findElement(By.id("num1")).sendKeys("5");
+        driver.findElement(By.id("num2")).sendKeys("10");
 
-        // Locate elements
-        WebElement num1 = driver.findElement(By.id("num1")); [cite: 91]
-        WebElement num2 = driver.findElement(By.id("num2")); [cite: 92]
-        WebElement calcBtn = driver.findElement(By.id("calcBtn")); [cite: 92]
-        WebElement result = driver.findElement(By.id("result")); [cite: 92]
+        // Click the 'Sum' button
+        driver.findElement(By.id("sumButton")).click();
 
-        // Perform actions: input numbers and click
-        num1.sendKeys("10"); [cite: 93]
-        num2.sendKeys("20"); [cite: 96]
-        calcBtn.click(); [cite: 97]
-
-        Thread.sleep(1000); // wait for JS to update [cite: 98]
-
-        // Verify result
-        String output = result.getText().trim(); [cite: 99]
-        System.out.println("Output: " + output); [cite: 100]
-        assertEquals("Sum=30", output); [cite: 101]
+        // Wait for the result to be visible and get the text
+        WebElement resultElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("result")));
+        
+        // Assert the result is correct
+        Assertions.assertEquals("15", resultElement.getText());
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
-        // Clean up: close the browser [cite: 103]
-        if (driver != null) driver.quit(); [cite: 104]
+        if (driver != null) {
+            driver.quit();
+        }
     }
 }
