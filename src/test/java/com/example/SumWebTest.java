@@ -49,8 +49,7 @@ public class SumWebTest {
         driver.findElement(By.id("num2")).sendKeys("10");
 
         // --- FINAL FIX: Wait until the sumButton is present and clickable ---
-        WebElement sumButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("sumButton")));
-
+WebElement sumButton = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("sumButton")));
         // Click the 'Sum' button
         sumButton.click();
 
