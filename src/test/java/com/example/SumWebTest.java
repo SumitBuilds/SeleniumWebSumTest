@@ -44,20 +44,15 @@ public class SumWebTest {
         String url = "file:///" + htmlFile.getAbsolutePath().replace("\\", "/");
         driver.get(url);
 
-        // --- FINAL FIX: Add a small pause for local file loading ---
-        try {
-            Thread.sleep(1000); // Wait for 1 second
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-        // -----------------------------------------------------------
-
-        // Input the numbers
+        // Input the numbers (No wait needed here)
         driver.findElement(By.id("num1")).sendKeys("5");
         driver.findElement(By.id("num2")).sendKeys("10");
 
+        // --- FINAL FIX: Wait until the sumButton is present and clickable ---
+        WebElement sumButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("sumButton")));
+
         // Click the 'Sum' button
-        driver.findElement(By.id("sumButton")).click();
+        sumButton.click();
 
         // Wait for the result to be visible and get the text
         WebElement resultElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("result")));
@@ -65,7 +60,6 @@ public class SumWebTest {
         // Assert the result is correct
         Assertions.assertEquals("15", resultElement.getText());
     }
-
     @AfterEach
     public void tearDown() {
         if (driver != null) {
