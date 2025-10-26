@@ -44,6 +44,14 @@ public class SumWebTest {
         String url = "file:///" + htmlFile.getAbsolutePath().replace("\\", "/");
         driver.get(url);
 
+        // --- FINAL FIX: Add a small pause for local file loading ---
+        try {
+            Thread.sleep(1000); // Wait for 1 second
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        // -----------------------------------------------------------
+
         // Input the numbers
         driver.findElement(By.id("num1")).sendKeys("5");
         driver.findElement(By.id("num2")).sendKeys("10");
