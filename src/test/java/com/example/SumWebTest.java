@@ -11,29 +11,31 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import io.github.bonigarcia.wdm.WebDriverManager; // <-- Add this import at the top!
 
 import java.io.File;
 import java.time.Duration;
 
+
+
 public class SumWebTest {
-
-    private WebDriver driver;
-    private WebDriverWait wait;
-
+// ... variables
+    
     @BeforeEach
     public void setup() {
-        // Set the path to the chromedriver executable (if needed, but usually automatically found)
-        // System.setProperty("webdriver.chrome.driver", "path/to/chromedriver.exe");
+        // **FINAL FIX: Use WebDriverManager to automatically set up the driver**
+        WebDriverManager.chromedriver().setup();
 
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless"); // Run Chrome in headless mode (no visible browser window)
+        options.addArguments("--headless"); 
         options.addArguments("--disable-gpu");
-        options.addArguments("--no-sandbox"); // Important for Jenkins/Linux environments
+        options.addArguments("--no-sandbox"); 
         options.addArguments("--disable-dev-shm-usage");
 
         driver = new ChromeDriver(options);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
+// ... rest of the class
 
     @Test
     public void testSumWebPage() {
